@@ -5,7 +5,8 @@ html, body {
 }
 
 #space-field {
-  background: #333;
+  background-image: -webkit-gradient(linear, left bottom, left top, from(#2d296b), to(#333));
+  background-image: linear-gradient(to top, #2d296b 0%, #333 100%);
   width: 100vw;
   height: 100vh;
 }

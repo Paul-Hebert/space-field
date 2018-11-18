@@ -7,8 +7,22 @@ var starPrototype = {
 
     },
     size: {
-        max: 7,
+        max: 5,
         min: 3
+    },
+    colorRange: {
+        red: {
+            min:180,
+            max:255
+        },
+        green: {
+            min:180,
+            max:255
+        },
+        blue: {
+            min:180,
+            max:255
+        }
     }
 }
 
@@ -29,7 +43,7 @@ var spaceField = {
     },
     init: function(settings){
         var field = document.querySelector(settings.target);
-        console.log(field);
+
         spaceField.size.width = field.scrollWidth;
         spaceField.size.height = field.scrollHeight;
 
@@ -51,31 +65,43 @@ var spaceField = {
                 // get minimum size
                 var starSize = starPrototype.size.min;
 
-                // add a ranodm number to get between min and max
-                starSize += ((starPrototype.size.max - starPrototype.size.min) * Math.random());
+                // add a random number to get between min and max
+                starSize += (starPrototype.size.max - starPrototype.size.min) * Math.random();
 
                 // shrink stars in back layer.
                 starSize *= 1/d;
 
                 spaceField.functions.setStyles(star, {
-                    left: Math.random() * spaceField.size.width,
-                    top: Math.random() * spaceField.size.height,
-                    width: starSize + "px",
-                    height: starSize + "px"
-                })
+                    "left": Math.random() * spaceField.size.width,
+                    "top": Math.random() * spaceField.size.height,
+                    "width": starSize + "px",
+                    "height": starSize + "px",
+                    "background": spaceField.functions.randomRGB(starPrototype.colorRange),
+                    "box-shadow": `0px 0px ${1/d}px ${1/d}px rgba(255,255,255,0.33)`,
+                });
 
                 layer.append(star);
             }
         }
     },
     functions: {
-        log: function(content, type = 'log'){
-            console[type](content);
+        log: function(content, action = 'log'){
+            console[action](content);
         },
         setStyles: function(target, styles){
             Object.keys(styles).forEach(function(key){
                 target.style[key] = styles[key];
             });
+        },
+        randomRGB: function(colorRange){
+            var red = spaceField.functions.randomColorValue(colorRange.red)
+            var green = spaceField.functions.randomColorValue(colorRange.green)
+            var blue = spaceField.functions.randomColorValue(colorRange.blue)
+
+            return `rgb(${red},${green},${blue})`
+        },
+        randomColorValue: function(color){
+            return color.min + ((color.max - color.min) * Math.random());
         }
     }
 };
