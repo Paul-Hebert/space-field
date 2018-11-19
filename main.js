@@ -37,8 +37,9 @@ var spaceField = {
     size: {
         width: null,
         height:  null,
+        diameter: null,
         area: function(){
-            return spaceField.size.width * spaceField.size.height;
+            return spaceField.size.diameter * spaceField.size.diameter;
         }
     },
     init: function(settings){
@@ -46,6 +47,7 @@ var spaceField = {
 
         spaceField.size.width = field.scrollWidth;
         spaceField.size.height = field.scrollHeight;
+        spaceField.size.diameter = Math.max(spaceField.size.width, spaceField.size.height) * 3;
 
         spaceField.functions.log('Field initiated.');
         spaceField.functions.log('Settings:');
@@ -56,6 +58,9 @@ var spaceField = {
         for(var d = spaceField.settings.depth; d > 0; d--){
             var layer = document.createElement('div');
             layer.className = 'layer';
+            var speed = 300 * d;
+            layer.style.animation = `spin ${speed}s infinite`;
+
             field.append(layer);
 
             for(var i = 0; i < spaceField.settings.starCount(d); i++){
@@ -72,8 +77,8 @@ var spaceField = {
                 starSize *= 1/d;
 
                 spaceField.functions.setStyles(star, {
-                    "left": Math.random() * spaceField.size.width,
-                    "top": Math.random() * spaceField.size.height,
+                    "left": Math.random() * spaceField.size.diameter,
+                    "top": Math.random() * spaceField.size.diameter,
                     "width": starSize + "px",
                     "height": starSize + "px",
                     "background": spaceField.functions.randomRGB(starPrototype.colorRange),
