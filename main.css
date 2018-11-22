@@ -26,22 +26,26 @@ html, body {
   background: rgba(0, 0, 0, 0.1);
 }
 
-#space-field .layer .star, #space-field .layer .planet {
+#space-field .layer .star, #space-field .layer .planet, #space-field .layer .asteroid {
   position: absolute;
   border-radius: 50%;
   background: #fff;
 }
 
-#space-field .layer .planet {
+#space-field .layer .planet, #space-field .layer .asteroid {
   overflow: hidden;
 }
 
-#space-field .layer .planet:after {
+#space-field .layer .planet:after, #space-field .layer .asteroid:after {
   width: 200%;
   height: 200%;
   background-image: inherit;
   content: "";
   display: block;
+}
+
+#space-field .layer .asteroid::after {
+  background-image: radial-gradient(#000 50%, #333);
 }
 
 .hero {

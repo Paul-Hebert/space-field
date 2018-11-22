@@ -24,13 +24,13 @@ html, body{
             background:rgba(0, 0, 0, .1);
         }
 
-        .star, .planet{
+        .star, .planet, .asteroid{
             position:absolute;
             border-radius:50%;
             background:#fff;
         }
 
-        .planet{
+        .planet, .asteroid{
             overflow:hidden;
 
             &:after{
@@ -40,6 +40,10 @@ html, body{
                 content: "";
                 display: block;
             }
+        }
+
+        .asteroid::after{
+            background-image: radial-gradient(#000 50%, #333)
         }
     }
 }

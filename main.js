@@ -46,6 +46,22 @@ var planetPrototype = {
     }
 }
 
+var asteroidPrototype = {
+    className: 'asteroid',
+    size: {
+        max: 13,
+        min: 5
+    }
+}
+
+function Asteroid(domElement){
+    this.domElement = domElement;
+    this.direction = spaceField.functions.helpers.randomAngle();
+    this.speed = spaceField.functions.helpers.randomNumber({min: 0.5, max: 5});
+    this.x = domElement.style.left.replace("px", "");
+    this.y = domElement.style.top.replace("px", "");
+}
+
 var spaceField = {
     settings: {
         starDepth: 5,
@@ -53,7 +69,12 @@ var spaceField = {
         starCount: function(layerDensity){
             return spaceField.size.area() * spaceField.settings.starDensity * layerDensity;
         },
-        planetCount: 7
+        planetCount: 7,
+        asteroidLayers: 10,
+        asteroidsPerLayer: {
+            min: 3,
+            max: 8
+        }
     },
     size: {
         width: null,
@@ -61,6 +82,23 @@ var spaceField = {
         area: function(){
             return spaceField.size.width * spaceField.size.height;
         }
+    },
+    asteroids: [],
+    loop: function(timestamp) {
+        spaceField.asteroids.forEach(asteroid => {
+            var yChange = Math.sin(asteroid.direction) * asteroid.speed;
+            var xChange = Math.cos(asteroid.direction) * asteroid.speed;
+            
+            asteroid.x = +asteroid.x + xChange;
+            asteroid.y = +asteroid.y + yChange;
+
+            spaceField.functions.helpers.setStyles(asteroid.domElement, {
+                left: asteroid.x + "px",
+                top: asteroid.y + "px"
+            });
+        });
+
+        window.requestAnimationFrame(spaceField.loop);
     },
     init: function(settings){
         var field = document.querySelector(settings.target);
@@ -87,6 +125,18 @@ var spaceField = {
 
             spaceField.functions.generate.planet(layer);
         }
+
+        for(var d = spaceField.settings.asteroidLayers; d > 0; d--){
+            var asteroidCount = spaceField.functions.helpers.randomNumber(spaceField.settings.asteroidsPerLayer);
+
+            var layer = spaceField.functions.generate.layer(field, 'asteroid-layer');
+
+            for(var i = 0; i < asteroidCount; i++){
+                spaceField.functions.generate.asteroid(layer);
+            }
+        }
+
+        window.requestAnimationFrame(spaceField.loop);
     },
     functions: {
         generate: {
@@ -94,11 +144,11 @@ var spaceField = {
                 var object = document.createElement('div');
                 object.className = prototype.className;
 
-                objectSize = spaceField.functions.helpers.randomSize(prototype.size, depth);
+                objectSize = spaceField.functions.helpers.randomSizeWithDepth(prototype.size, depth);
 
                 spaceField.functions.helpers.setStyles(object, {
-                    "left": spaceField.functions.helpers.randomX(objectSize),
-                    "top": spaceField.functions.helpers.randomY(objectSize),
+                    "left": spaceField.functions.helpers.randomX(objectSize) + "px",
+                    "top": spaceField.functions.helpers.randomY(objectSize) + "px",
                     "width": objectSize + "px",
                     "height": objectSize + "px",
                 });
@@ -127,6 +177,13 @@ var spaceField = {
 
                 container.append(planet);
             },
+            asteroid: function(container){
+                var asteroid = spaceField.functions.generate.object(asteroidPrototype, 1);
+
+                spaceField.asteroids.push(new Asteroid(asteroid));
+
+                container.append(asteroid);
+            },
             layer: function(container, className){
                 var layer = document.createElement('div');
                 layer.className = 'layer ' +  className;
@@ -154,15 +211,21 @@ var spaceField = {
             randomColorValue: function(color){
                 return color.min + ((color.max - color.min) * Math.random());
             },
-            randomSize: function(sizeRange, depth){
-                // get minimum size
-                var size = sizeRange.min;
+            randomNumber: function(numberRange){
+                // get minimum number
+                var number = numberRange.min;
 
                 // add a random number to get between min and max
-                size += (sizeRange.max - sizeRange.min) * Math.random();
+                return number += (numberRange.max - numberRange.min) * Math.random();
+            },
+            randomSizeWithDepth: function(sizeRange, depth){
+                var size = spaceField.functions.helpers.randomNumber(sizeRange);
 
                 // shrink objects in back layers.
                 return size/depth;
+            },
+            randomAngle: function(){
+                return spaceField.functions.helpers.randomNumber({min: 0, max: 360});
             },
             randomX: function(diameter){
                 return (Math.random() * spaceField.size.width) - diameter/2;
