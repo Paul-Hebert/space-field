@@ -48,7 +48,7 @@ var planetPrototype = {
 
 var spaceField = {
     settings: {
-        depth: 5,
+        starDepth: 5,
         starDensity: 1/10000,
         starCount: function(layerDensity){
             return spaceField.size.area() * spaceField.settings.starDensity * layerDensity;
@@ -74,20 +74,18 @@ var spaceField = {
         spaceField.functions.helpers.log('Size:');
         spaceField.functions.helpers.log(spaceField.size, 'table');
 
-        for(var d = spaceField.settings.depth; d > 0; d--){
-            var layer = document.createElement('div');
-            layer.className = 'layer';
-            field.append(layer);
+        for(var d = spaceField.settings.starDepth; d > 0; d--){
+            var layer = spaceField.functions.generate.layer(field, 'star-layer');
 
             for(var i = 0; i < spaceField.settings.starCount(d); i++){
                 spaceField.functions.generate.star(layer, d);
             }
+        }
 
-            if(d === 1){
-                for(i = 0; i < spaceField.settings.planetCount; i++){
-                    spaceField.functions.generate.planet(layer);
-                }
-            }
+        for(var d = spaceField.settings.planetCount; d > 0; d--){
+            var layer = spaceField.functions.generate.layer(field, 'planet-layer');
+
+            spaceField.functions.generate.planet(layer);
         }
     },
     functions: {
@@ -128,6 +126,13 @@ var spaceField = {
                 });
 
                 container.append(planet);
+            },
+            layer: function(container, className){
+                var layer = document.createElement('div');
+                layer.className = 'layer ' +  className;
+                container.append(layer);
+
+                return layer;
             }
         },
         helpers: {
