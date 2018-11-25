@@ -60,6 +60,7 @@ function Asteroid(domElement){
     this.speed = spaceField.functions.helpers.randomNumber({min: 0.5, max: 5});
     this.x = domElement.style.left.replace("px", "");
     this.y = domElement.style.top.replace("px", "");
+    this.radius = domElement.style.width.replace("px", "")/2;
 }
 
 var spaceField = {
@@ -84,7 +85,7 @@ var spaceField = {
         }
     },
     asteroids: [],
-    loop: function(timestamp) {
+    loop: function() {
         spaceField.asteroids.forEach(asteroid => {
             var yChange = Math.sin(asteroid.direction) * asteroid.speed;
             var xChange = Math.cos(asteroid.direction) * asteroid.speed;
@@ -96,6 +97,28 @@ var spaceField = {
                 left: asteroid.x + "px",
                 top: asteroid.y + "px"
             });
+
+            var offScreenAsteroids = [];
+
+            var offHorizontally = spaceField.functions.helpers.underZeroOrOverMax(asteroid.x, spaceField.size.width, asteroid.radius);
+            var offVertically = spaceField.functions.helpers.underZeroOrOverMax(asteroid.y, spaceField.size.height, asteroid.radius);
+
+            if(offHorizontally || offVertically){
+                // We need to calculate this dynamically instead of using a counter since we may have 
+                // have deleted earlier members of the array.
+                var asteroidIndex = spaceField.asteroids.indexOf(asteroid);
+
+                // Remove the off-screen asteroid from array
+                spaceField.asteroids.splice(asteroidIndex, 1);
+                asteroid.domElement.parentNode.removeChild(asteroid.domElement);
+
+                spaceField.functions.helpers.log("Asteroid moved off screen and removed.");
+                spaceField.functions.helpers.log("Off Horizontally: " + offHorizontally);
+                spaceField.functions.helpers.log("Off Vertically: " + offVertically);
+                spaceField.functions.helpers.log(spaceField.asteroids.length + " asteroids left.");
+
+                //ToDo: Add new asteroid
+            }
         });
 
         window.requestAnimationFrame(spaceField.loop);
@@ -120,11 +143,15 @@ var spaceField = {
             }
         }
 
+        spaceField.functions.helpers.log('Stars Generated.');
+
         for(var d = spaceField.settings.planetCount; d > 0; d--){
             var layer = spaceField.functions.generate.layer(field, 'planet-layer');
 
             spaceField.functions.generate.planet(layer);
         }
+
+        spaceField.functions.helpers.log('Planets Generated.');
 
         for(var d = spaceField.settings.asteroidLayers; d > 0; d--){
             var asteroidCount = spaceField.functions.helpers.randomNumber(spaceField.settings.asteroidsPerLayer);
@@ -136,6 +163,10 @@ var spaceField = {
             }
         }
 
+        spaceField.functions.helpers.log('Asteroids Generated:');
+        spaceField.functions.helpers.log(spaceField.asteroids);        
+
+        // init loop
         window.requestAnimationFrame(spaceField.loop);
     },
     functions: {
@@ -232,6 +263,9 @@ var spaceField = {
             },
             randomY: function(diameter){
                 return (Math.random() * spaceField.size.height) - diameter/2;
+            },
+            underZeroOrOverMax(number, max, adjustment){
+                return (number > max + adjustment) || (number < 0 - adjustment);
             }
         }
     }
