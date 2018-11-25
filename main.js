@@ -1,7 +1,3 @@
-var options = {
-    target: '#space-field'
-};
-
 var starPrototype = {
     className: 'star',
     size: {
@@ -27,7 +23,7 @@ var starPrototype = {
 var planetPrototype = {
     className: 'planet',
     size: {
-        max: 70,
+        max: 90,
         min: 10
     },
     colorRange: {
@@ -97,8 +93,6 @@ var spaceField = {
                 left: asteroid.x + "px",
                 top: asteroid.y + "px"
             });
-
-            var offScreenAsteroids = [];
 
             var offHorizontally = spaceField.functions.helpers.underZeroOrOverMax(asteroid.x, spaceField.size.width, asteroid.radius);
             var offVertically = spaceField.functions.helpers.underZeroOrOverMax(asteroid.y, spaceField.size.height, asteroid.radius);
@@ -227,34 +221,38 @@ var spaceField = {
             log: function(content, action = 'log'){
                 console[action](content);
             },
+            // Applies a number of CSS rules to a DOM element
+            // Expects an object of the following format:
+            // { "background": "#BADA55", color: "#C0FF13" }
             setStyles: function(target, styles){
                 Object.keys(styles).forEach(function(key){
                     target.style[key] = styles[key];
                 });
             },
             randomRGB: function(colorRange){
-                var red = spaceField.functions.helpers.randomColorValue(colorRange.red)
-                var green = spaceField.functions.helpers.randomColorValue(colorRange.green)
-                var blue = spaceField.functions.helpers.randomColorValue(colorRange.blue)
+                var red = spaceField.functions.helpers.randomNumber(colorRange.red)
+                var green = spaceField.functions.helpers.randomNumber(colorRange.green)
+                var blue = spaceField.functions.helpers.randomNumber(colorRange.blue)
 
                 return `rgb(${red},${green},${blue})`
             },
-            randomColorValue: function(color){
-                return color.min + ((color.max - color.min) * Math.random());
-            },
+            // Returns a number between two values.
+            // Expects an object of the following format:
+            // { min: 0, max: 50 }
             randomNumber: function(numberRange){
-                // get minimum number
+                // Get minimum number
                 var number = numberRange.min;
 
-                // add a random number to get between min and max
+                // Add a random number to get between min and max
                 return number += (numberRange.max - numberRange.min) * Math.random();
             },
             randomSizeWithDepth: function(sizeRange, depth){
                 var size = spaceField.functions.helpers.randomNumber(sizeRange);
 
-                // shrink objects in back layers.
+                // Shrink objects in back layers.
                 return size/depth;
             },
+            // returns a number between 0 and 360
             randomAngle: function(){
                 return spaceField.functions.helpers.randomNumber({min: 0, max: 360});
             },
@@ -271,4 +269,6 @@ var spaceField = {
     }
 };
 
-window.addEventListener('load', spaceField.init(options));
+window.addEventListener('load', spaceField.init({
+    target: '#space-field'
+}));
