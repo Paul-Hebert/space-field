@@ -12,6 +12,14 @@ html, body {
 #space-field {
   background-image: linear-gradient(to top, #2d296b 0%, #333 100%);
   position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#space-field.debug {
+  width: 80vw;
+  height: 80vh;
+  margin: 10vh 10vw;
 }
 
 #space-field .layer {
@@ -53,8 +61,6 @@ html, body {
 }
 
 .hero {
-  width: 100vw;
-  height: 100vh;
   text-align: center;
   color: #fff;
   padding-top: 30vh;

@@ -47,6 +47,10 @@ var asteroidPrototype = {
     size: {
         max: 13,
         min: 5
+    }, 
+    speed: {
+        min: 0.5, 
+        max: 5
     }
 }
 
@@ -97,21 +101,49 @@ var spaceField = {
             var offHorizontally = spaceField.functions.helpers.underZeroOrOverMax(asteroid.x, spaceField.size.width, asteroid.radius);
             var offVertically = spaceField.functions.helpers.underZeroOrOverMax(asteroid.y, spaceField.size.height, asteroid.radius);
 
+            // This asteroid is off the edge. We'll replace this one with a new one moving in from the edge of the screen.
+            // We'll reuse the object and dom element and update them.
             if(offHorizontally || offVertically){
-                // We need to calculate this dynamically instead of using a counter since we may have 
-                // have deleted earlier members of the array.
-                var asteroidIndex = spaceField.asteroids.indexOf(asteroid);
+                // Pick an edge: 0 = left, 1 = down, 2 = right, 3 = bottom
+                var newEdge = spaceField.functions.helpers.randomInt({min: 0, max: 3});
 
-                // Remove the off-screen asteroid from array
-                spaceField.asteroids.splice(asteroidIndex, 1);
-                asteroid.domElement.parentNode.removeChild(asteroid.domElement);
+                // Figure out our new location based on the edge.
+                if(newEdge === 0 || newEdge === 2){
+                    asteroid.y = spaceField.functions.helpers.randomY(newSize);
 
-                spaceField.functions.helpers.log("Asteroid moved off screen and removed.");
-                spaceField.functions.helpers.log("Off Horizontally: " + offHorizontally);
-                spaceField.functions.helpers.log("Off Vertically: " + offVertically);
-                spaceField.functions.helpers.log(spaceField.asteroids.length + " asteroids left.");
+                    if(newEdge === 0){
+                        asteroid.x = 0 - asteroid.radius;
+                    } else{
+                        asteroid.x = spaceField.size.width + asteroid.radius;
+                    }
+                } else{
+                    asteroid.x = spaceField.functions.helpers.randomX(newSize);
 
-                //ToDo: Add new asteroid
+                    if(newEdge === 1){
+                        asteroid.y = 0 - asteroid.radius;
+                    } else{
+                        asteroid.y = spaceField.size.height + asteroid.radius;
+                    }
+                }
+
+                // Choose an angle that will move in from the edge we've chosen.
+                asteroid.direction = spaceField.functions.helpers.randomNumber({
+                    min: (newEdge * 90), 
+                    max: ((newEdge + 1) * 90) 
+                });
+
+                // Calculate a new random size and update our objects
+                var newSize = spaceField.functions.helpers.randomNumber(asteroidPrototype.size);
+
+                asteroid.radius = newSize/2;
+
+                spaceField.functions.helpers.setStyles(asteroid.domElement, {
+                    width: newSize + "px",
+                    height: newSize + "px"
+                });
+
+                // Calculate a new random speed
+                asteroid.speed = spaceField.functions.helpers.randomNumber(asteroidPrototype.speed);
             }
         });
 
@@ -229,6 +261,7 @@ var spaceField = {
                     target.style[key] = styles[key];
                 });
             },
+            // Returns a random RGB color
             randomRGB: function(colorRange){
                 var red = spaceField.functions.helpers.randomNumber(colorRange.red)
                 var green = spaceField.functions.helpers.randomNumber(colorRange.green)
@@ -245,6 +278,13 @@ var spaceField = {
 
                 // Add a random number to get between min and max
                 return number += (numberRange.max - numberRange.min) * Math.random();
+            },
+            // This is trickier than you'd first guess since you don't want the min and max to be less likely to be chosen.
+            // Solution modified from SO: https://stackoverflow.com/a/1527820/7816145
+            randomInt: function(numberRange){
+                numberRange.min = Math.ceil(numberRange.min);
+                numberRange.max = Math.floor(numberRange.max + 1);
+                return Math.floor(spaceField.functions.helpers.randomNumber(numberRange));
             },
             randomSizeWithDepth: function(sizeRange, depth){
                 var size = spaceField.functions.helpers.randomNumber(sizeRange);
